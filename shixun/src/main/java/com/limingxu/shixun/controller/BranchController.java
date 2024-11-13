@@ -36,13 +36,21 @@ public class BranchController {
 
     @GetMapping("/allTenementsWithBranches")
     public Result<List<Tenement>> getAllTenementsWithBranches() {
-        List<Tenement> tenements = tenementBiz.getAllTenements(null);
-        tenements.forEach(tenement -> {
-            List<Branch> branches = branchBiz.getBranchesByTenementId(tenement.getId());
-            tenement.setChildren(branches);
-        });
-        return Result.success(tenements);
+        try {
+            List<Tenement> tenements = tenementBiz.getAllTenements(null);
+
+            tenements.forEach(tenement -> {
+                List<Branch> branches = branchBiz.getBranchesByTenementId(tenement.getId());
+                tenement.setChildren(branches);
+            });
+
+            return Result.success(tenements);
+        } catch (Exception e) {
+            // 捕获并返回系统异常
+            return Result.error("500", "Failed to fetch tenements with branches");
+        }
     }
+
 
     @GetMapping("/tenantsBranches")
     public Result<Tenement> getTenantsBranches(@RequestParam long tenementId) {
