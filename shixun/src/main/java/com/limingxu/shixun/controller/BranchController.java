@@ -35,33 +35,33 @@ public class BranchController {
     }
 
     @GetMapping("/allTenementsWithBranches")
-    public Result<?> getAllTenementsWithBranches() {
+    public Result<List<Tenement>> getAllTenementsWithBranches() {
         List<Tenement> tenements = tenementBiz.getAllTenements(null);
-        for (Tenement tenement : tenements) {
+        tenements.forEach(tenement -> {
             List<Branch> branches = branchBiz.getBranchesByTenementId(tenement.getId());
             tenement.setChildren(branches);
-        }
+        });
         return Result.success(tenements);
     }
+
     @GetMapping("/tenantsBranches")
-    public Result<?> getTenantsBranches(@RequestParam long tenementId) {
+    public Result<Tenement> getTenantsBranches(@RequestParam long tenementId) {
         Tenement tenement = tenementBiz.getById(tenementId);
         if (tenement == null) {
             return Result.error("1", "Tenement not found");
         }
         List<Branch> branches = branchBiz.getBranchesByTenementId(tenementId);
         tenement.setChildren(branches);
-        return Result.success(List.of(tenement));
+        return Result.success(tenement);
     }
 
     @GetMapping("/children")
-    public Result<?> getChildrenBranches(@RequestParam Integer parentId) {
-        List<Branch> list = branchBiz.getBranchesByParentId(parentId);
-        for (Branch branch : list) {
-            branch.setHasChildren(true);
-        }
-        return Result.success(list);
+    public Result<List<Branch>> getChildrenBranches(@RequestParam Integer parentId) {
+        List<Branch> branches = branchBiz.getBranchesByParentId(parentId);
+        branches.forEach(branch -> branch.setHasChildren(true));
+        return Result.success(branches);
     }
+
 
     @PostMapping("/add")
     public Result<?> addBranch(@RequestBody Branch branch) {
